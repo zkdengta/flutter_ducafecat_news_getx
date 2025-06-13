@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.12.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -34,7 +34,7 @@ dependencies:
   get: ^4.1.4
 
   # 日期
-  intl: ^0.17.0
+  intl: ^0.20.2
 
   # 屏幕适配
   flutter_screenutil: ^5.0.0+2
@@ -62,31 +62,31 @@ dependencies:
   crypto: ^3.0.1
 
   # webView
-  webview_flutter: ^2.0.4
+  webview_flutter: ^4.13.0
 
   # loading
   loading_animations: ^2.2.0
 
   # share
-  share: ^2.0.1
+  share_plus: ^11.0.0
 
   # 设备信息
-  device_info: ^2.0.0
+  device_info_plus: ^11.4.0
 
   # 包信息
-  package_info: ^2.0.0
+  package_info_plus: ^8.3.0
 
   # 路径查询
   path_provider: ^2.0.1
 
   # permission 权限
-  permission_handler: ^7.1.0
+  permission_handler: ^12.0.0+1
 
   # 错误收集
   sentry: ^5.0.0
 
   # 通过 scheme 打开APP 获取 参数
-  uni_links: ^0.5.1
+  app_links: ^6.4.0
 
 dev_dependencies:
   flutter_test:

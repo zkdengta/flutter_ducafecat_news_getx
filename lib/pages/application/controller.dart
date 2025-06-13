@@ -7,7 +7,7 @@ import 'package:flutter_ducafecat_news_getx/common/routers/routes.dart';
 import 'package:flutter_ducafecat_news_getx/common/utils/utils.dart';
 import 'package:flutter_ducafecat_news_getx/common/values/values.dart';
 import 'package:get/get.dart';
-import 'package:uni_links/uni_links.dart';
+import 'package:app_links/app_links.dart';
 
 import 'index.dart';
 
@@ -51,7 +51,7 @@ class ApplicationController extends GetxController {
     if (!isInitialUriIsHandled) {
       isInitialUriIsHandled = true;
       try {
-        final uri = await getInitialUri();
+        final uri = await AppLinks().getInitialLink();
         if (uri == null) {
           print('no initial uri');
         } else {
@@ -69,7 +69,7 @@ class ApplicationController extends GetxController {
   // 程序打开时介入
   void handleIncomingLinks() {
     if (!kIsWeb) {
-      uriSub = uriLinkStream.listen((Uri? uri) {
+      uriSub = AppLinks().uriLinkStream.listen((Uri? uri) {
         // 这里获取了 scheme 请求
         print('got uri: $uri');
 
