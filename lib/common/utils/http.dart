@@ -66,6 +66,23 @@ class HttpUtil {
     // 添加拦截器
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
+        RequestOptions requestOptions = options;
+        if (requestOptions.extra.containsKey('showLoading')) {
+          bool showLoading = requestOptions.extra['showLoading'];
+          if (showLoading) {
+            Loading.show();
+          }
+        }
+        requestOptions.headers = requestOptions.headers;
+        Map<String, dynamic>? authorization = getAuthorizationHeader();
+        if (authorization != null) {
+          requestOptions.headers.addAll(authorization);
+        }
+        print('请求数据：path->${requestOptions.baseUrl + requestOptions.path}\n'
+            'headers->${requestOptions.headers}\n'
+            'queryParameters->${requestOptions.queryParameters}\n'
+            'data->${requestOptions.data}\n'
+            'extra->${requestOptions.extra}');
         // Do something before request is sent
         return handler.next(options); //continue
         // 如果你想完成请求并返回一些自定义数据，你可以resolve一个Response对象 `handler.resolve(response)`。
@@ -75,6 +92,9 @@ class HttpUtil {
         // 这样请求将被中止并触发异常，上层catchError会被调用。
       },
       onResponse: (response, handler) {
+        Loading.dismiss();
+        print('响应数据：path->${response.requestOptions.baseUrl+ response.requestOptions.path}\n'
+            'data->${response.data}');
         // Do something with response data
         return handler.next(response); // continue
         // 如果你想终止请求并触发一个错误,你可以 reject 一个`DioError`对象,如`handler.reject(error)`，
@@ -194,65 +214,37 @@ class HttpUtil {
   }
 
   /// restful get 操作
-  /// refresh 是否下拉刷新 默认 false
-  /// noCache 是否不缓存 默认 true
-  /// list 是否列表 默认 false
-  /// cacheKey 缓存key
-  /// cacheDisk 是否磁盘缓存
-  Future get(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    bool refresh = false,
-    bool noCache = !CACHE_ENABLE,
-    bool list = false,
-    String cacheKey = '',
-    bool cacheDisk = false,
-  }) async {
+  /// showLoading 是否显示加载弹窗 默认 false
+  Future get(String path,
+      {Map<String, dynamic>? queryParameters,
+      Options? options,
+      bool showLoading = false}) async {
     Options requestOptions = options ?? Options();
     if (requestOptions.extra == null) {
       requestOptions.extra = Map();
     }
-    requestOptions.extra!.addAll({
-      "refresh": refresh,
-      "noCache": noCache,
-      "list": list,
-      "cacheKey": cacheKey,
-      "cacheDisk": cacheDisk,
-    });
-    requestOptions.headers = requestOptions.headers ?? {};
-    Map<String, dynamic>? authorization = getAuthorizationHeader();
-    if (authorization != null) {
-      requestOptions.headers!.addAll(authorization);
-    }
-
+    requestOptions.extra!.addAll({"showLoading": showLoading});
     var response = await dio.get(
       path,
       queryParameters: queryParameters,
-      options: options,
+      options: requestOptions,
       cancelToken: cancelToken,
     );
     return response.data;
   }
 
   /// restful post 操作
-  Future post(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
+  Future post(String path,
+      {dynamic data, Options? options, bool showLoading = false}) async {
     Options requestOptions = options ?? Options();
-    requestOptions.headers = requestOptions.headers ?? {};
-    Map<String, dynamic>? authorization = getAuthorizationHeader();
-    if (authorization != null) {
-      requestOptions.headers!.addAll(authorization);
+    if (requestOptions.extra == null) {
+      requestOptions.extra = Map();
     }
+    requestOptions.extra!.addAll({"showLoading": showLoading});
     var response = await dio.post(
       path,
       data: data,
-      queryParameters: queryParameters,
-      options: requestOptions,
+      options: options,
       cancelToken: cancelToken,
     );
     return response.data;
@@ -265,17 +257,11 @@ class HttpUtil {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    Options requestOptions = options ?? Options();
-    requestOptions.headers = requestOptions.headers ?? {};
-    Map<String, dynamic>? authorization = getAuthorizationHeader();
-    if (authorization != null) {
-      requestOptions.headers!.addAll(authorization);
-    }
     var response = await dio.put(
       path,
       data: data,
       queryParameters: queryParameters,
-      options: requestOptions,
+      options: options,
       cancelToken: cancelToken,
     );
     return response.data;
@@ -288,17 +274,11 @@ class HttpUtil {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    Options requestOptions = options ?? Options();
-    requestOptions.headers = requestOptions.headers ?? {};
-    Map<String, dynamic>? authorization = getAuthorizationHeader();
-    if (authorization != null) {
-      requestOptions.headers!.addAll(authorization);
-    }
     var response = await dio.patch(
       path,
       data: data,
       queryParameters: queryParameters,
-      options: requestOptions,
+      options: options,
       cancelToken: cancelToken,
     );
     return response.data;
@@ -311,17 +291,11 @@ class HttpUtil {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    Options requestOptions = options ?? Options();
-    requestOptions.headers = requestOptions.headers ?? {};
-    Map<String, dynamic>? authorization = getAuthorizationHeader();
-    if (authorization != null) {
-      requestOptions.headers!.addAll(authorization);
-    }
     var response = await dio.delete(
       path,
       data: data,
       queryParameters: queryParameters,
-      options: requestOptions,
+      options: options,
       cancelToken: cancelToken,
     );
     return response.data;
@@ -334,17 +308,11 @@ class HttpUtil {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    Options requestOptions = options ?? Options();
-    requestOptions.headers = requestOptions.headers ?? {};
-    Map<String, dynamic>? authorization = getAuthorizationHeader();
-    if (authorization != null) {
-      requestOptions.headers!.addAll(authorization);
-    }
     var response = await dio.post(
       path,
       data: FormData.fromMap(data),
       queryParameters: queryParameters,
-      options: requestOptions,
+      options: options,
       cancelToken: cancelToken,
     );
     return response.data;
@@ -359,11 +327,6 @@ class HttpUtil {
     Options? options,
   }) async {
     Options requestOptions = options ?? Options();
-    requestOptions.headers = requestOptions.headers ?? {};
-    Map<String, dynamic>? authorization = getAuthorizationHeader();
-    if (authorization != null) {
-      requestOptions.headers!.addAll(authorization);
-    }
     requestOptions.headers!.addAll({
       Headers.contentLengthHeader: dataLength.toString(),
     });

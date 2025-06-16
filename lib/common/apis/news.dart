@@ -14,9 +14,6 @@ class NewsAPI {
     var response = await HttpUtil().get(
       '/news',
       queryParameters: params?.toJson(),
-      refresh: refresh,
-      cacheDisk: cacheDisk,
-      cacheKey: STORAGE_INDEX_NEWS_CACHE_KEY,
     );
     return NewsPageListResponseEntity.fromJson(response);
   }
@@ -30,8 +27,6 @@ class NewsAPI {
     var response = await HttpUtil().get(
       '/news/recommend',
       queryParameters: params?.toJson(),
-      refresh: refresh,
-      cacheDisk: cacheDisk,
     );
     return NewsItem.fromJson(response);
   }
@@ -42,7 +37,6 @@ class NewsAPI {
   }) async {
     var response = await HttpUtil().get(
       '/categories',
-      cacheDisk: cacheDisk,
     );
     return response
         .map<CategoryResponseEntity>(
@@ -56,7 +50,6 @@ class NewsAPI {
   }) async {
     var response = await HttpUtil().get(
       '/channels',
-      cacheDisk: cacheDisk,
     );
     return response
         .map<ChannelResponseEntity>(
@@ -72,7 +65,6 @@ class NewsAPI {
     var response = await HttpUtil().get(
       '/tags',
       queryParameters: params?.toJson(),
-      cacheDisk: cacheDisk,
     );
     return response
         .map<TagResponseEntity>((item) => TagResponseEntity.fromJson(item))
